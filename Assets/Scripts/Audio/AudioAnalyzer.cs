@@ -2,42 +2,50 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-
+/// <summary>
+/// г‚Єгѓјгѓ‡г‚Јг‚Єг‚№гѓљг‚Їгѓ€гѓ©гѓ г‚’и§ЈжћђгЃ—гЃ¦гѓ“гѓјгѓ€ж¤ње‡єгЃЁе‘Ёжіўж•°еёЇеџџе€†жћђг‚’иЎЊгЃ†г‚ігѓігѓќгѓјгѓЌгѓігѓ€
+/// AudioSourceг‚ігѓігѓќгѓјгѓЌгѓігѓ€гЃЊеї…и¦ЃгЃ§гЃ™
+/// </summary>
 [RequireComponent(typeof(AudioSource))]
 public class AudioAnalyzer : MonoBehaviour
 {
-    /// <summary>‰№‰рђН‚МђЭ’иSO</summary>
+    /// <summary>йџіеЈ°и§ЈжћђгЃ®иЁ­е®љгѓ‘гѓ©гѓЎгѓјг‚ї</summary>
     [SerializeField] private AudioAnalysisSettings settings;
 
+    /// <summary>гѓ“гѓјгѓ€ж¤ње‡єж™‚гЃ«з™єзЃ«гЃ™г‚‹г‚¤гѓ™гѓігѓ€</summary>
     [System.Serializable] public class BeatEvent : UnityEvent { }
-    /// <summary>ѓrЃ[ѓg‚рЉO•”‚Й’К’m‚·‚йѓCѓxѓ“ѓg</summary>
     public BeatEvent OnBeat;
 
-    // ‰рђНЊ‹‰КЃi“З‚ЭЋж‚иђк—pЃj
+    // и§Јжћђзµђжћњпј€иЄ­гЃїеЏ–г‚Ље°‚з”Ёгѓ—гѓ­гѓ‘гѓ†г‚Јпј‰
+    /// <summary>дЅЋе‘Ёжіўж•°еёЇеџџпј€йЂљеёё200Hzд»Ґдё‹пј‰гЃ®еј·еє¦</summary>
     public float Low { get; private set; }
+    /// <summary>дё­е‘Ёжіўж•°еёЇеџџпј€йЂљеёё200Hz-2000Hzпј‰гЃ®еј·еє¦</summary>
     public float Mid { get; private set; }
+    /// <summary>й«е‘Ёжіўж•°еёЇеџџпј€йЂљеёё2000Hzд»ҐдёЉпј‰гЃ®еј·еє¦</summary>
     public float High { get; private set; }
+    /// <summary>г‚№гѓљг‚Їгѓ€гѓ©гѓ гѓ•гѓ©гѓѓг‚Їг‚№пј€йџігЃ®е¤‰еЊ–й‡Џпј‰</summary>
     public float Flux { get; private set; }
 
-    /// <summary>ѓIЃ[ѓfѓBѓIѓ\Ѓ[ѓX</summary>
+    // е†…йѓЁе¤‰ж•°
+    /// <summary>йџіеЈ°г‚Ѕгѓјг‚№г‚ігѓігѓќгѓјгѓЌгѓігѓ€</summary>
     AudioSource src;
-    /// <summary>Њ»ЌЭ‚МѓXѓyѓNѓgѓ‰ѓЂ</summary>
+    /// <summary>зЏѕењЁгЃ®г‚№гѓљг‚Їгѓ€гѓ©гѓ гѓ‡гѓјг‚ї</summary>
     float[] spectrum;
-    /// <summary>‘O‰с‚МѓXѓyѓNѓgѓ‰ѓЂ</summary>
+    /// <summary>е‰Ќгѓ•гѓ¬гѓјгѓ гЃ®г‚№гѓљг‚Їгѓ€гѓ©гѓ гѓ‡гѓјг‚їпј€гѓ•гѓ©гѓѓг‚Їг‚№иЁ€з®—з”Ёпј‰</summary>
     float[] prevSpec;
-    /// <summary>€Ъ“®•Ѕ‹П—pѓoѓbѓtѓ@</summary>
+    /// <summary>гѓ•гѓ©гѓѓг‚Їг‚№е±Ґж­ґгѓђгѓѓгѓ•г‚Ўпј€з§»е‹•е№іеќ‡иЁ€з®—з”Ёпј‰</summary>
     float[] fluxBuf;
-    /// <summary>ѓЉѓ“ѓNѓoѓbѓtѓ@‚МЏ‘‚«Ќћ‚Э€К’u</summary>
+    /// <summary>гѓ•гѓ©гѓѓг‚Їг‚№гѓђгѓѓгѓ•г‚ЎгЃ®зЏѕењЁдЅЌзЅ®</summary>
     int fluxIdx;
-    /// <summary>’ј‹ЯѓrЃ[ѓg‚МЋћЉФЃiA‘Е–hЋ~Ѓj</summary>
+    /// <summary>жњЂеѕЊгЃ«гѓ“гѓјгѓ€г‚’ж¤ње‡єгЃ—гЃџж™‚й–“пј€йЂЈз¶љж¤ње‡єйІж­ўпј‰</summary>
     float lastBeatTime; 
 
     void Awake()
     {
-        // ѓIЃ[ѓfѓBѓIѓ\Ѓ[ѓX“З‚ЭЌћ‚Э
+        // AudioSourceг‚ігѓігѓќгѓјгѓЌгѓігѓ€г‚’еЏ–еѕ—
         src = GetComponent<AudioSource>();
 
-        // FFTѓTѓCѓYЃA—љ—р’·‚рЏ‰Љъ‰»
+        // FFTг‚µг‚¤г‚єгЃ«еџєгЃҐгЃ„гЃ¦гѓђгѓѓгѓ•г‚Ўг‚’е€ќжњџеЊ–
         int n = Mathf.Max(256, settings.fftSize);
         spectrum = new float[n];
         prevSpec = new float[n];
@@ -48,16 +56,16 @@ public class AudioAnalyzer : MonoBehaviour
     {
         if (settings == null) return;
 
-        // FFT‚ЕЋь”gђ”ђ¬•Є‚рЋж“ѕ
+        // FFTгЃ§г‚№гѓљг‚Їгѓ€гѓ©гѓ гѓ‡гѓјг‚їг‚’еЏ–еѕ—
         src.GetSpectrumData(spectrum, 0, settings.window);
 
-        // ‘С€ж‚рLow/Mid/High‚ЙђП•ЄЃi‹«ЉE‚НNyquistЋь”gђ”‚©‚зbinЉ·ЋZЃj
+        // е‘Ёжіўж•°еёЇеџџг‚’Low/Mid/HighгЃ«е€†е‰Іпј€гѓЉг‚¤г‚­г‚№гѓ€е®љзђ†г‚’дЅїз”ЁгЃ—гЃ¦binж•°г‚’иЁ€з®—пј‰
         float nyquist = AudioSettings.outputSampleRate * 0.5f;
         int n = spectrum.Length;
         int lowMaxBin = Mathf.Clamp(Mathf.RoundToInt(settings.lowMaxHz / nyquist * n), 1, n - 2);
         int midMaxBin = Mathf.Clamp(Mathf.RoundToInt(settings.midMaxHz / nyquist * n), lowMaxBin + 1, n - 1);
 
-        // ‘С€жђП•Є
+        // еђ„е‘Ёжіўж•°еёЇеџџгЃ®еј·еє¦г‚’иЁ€з®—
         float low = 0, mid = 0, high = 0;
         for (int i = 0; i < n; i++)
         {
@@ -67,39 +75,41 @@ public class AudioAnalyzer : MonoBehaviour
             else high += v;
         }
 
-        // ѓXѓyѓNѓgѓ‹ѓtѓ‰ѓbѓNѓX‚МЊvЋZ
-        // ѓXѓyѓNѓgѓ‹ѓtѓ‰ѓbѓNѓXЃF‘OѓtѓЊЃ[ѓЂ‚ж‚и‘ќ‚¦‚Ѕ•Є‚МЌ‡Њv
+        // г‚№гѓљг‚Їгѓ€гѓ©гѓ гѓ•гѓ©гѓѓг‚Їг‚№гЃ®иЁ€з®—
+        // г‚№гѓљг‚Їгѓ€гѓ©гѓ гѓ•гѓ©гѓѓг‚Їг‚№пјље‰Ќгѓ•гѓ¬гѓјгѓ гЃЁгЃ®е·®е€†гЃ®еђ€иЁ€пј€йџігЃ®е¤‰еЊ–й‡Џг‚’иЎЁгЃ™пј‰
         float flux = 0f;
         for (int i = 0; i < n; i++)
         {
             float diff = spectrum[i] - prevSpec[i];
 
-            // ђі‚МЌ·•Є‚М‚ЭЌМ—p
+            // ж­ЈгЃ®е·®е€†гЃ®гЃїг‚’жЋЎз”Ёпј€йџігЃ®еў—еЉ гЃ®гЃїг‚’ж¤ње‡єпј‰
             if (diff > 0) flux += diff;
 
-            // Ћџ‰с”дЉr—p‚Й•Ы‘¶
+            // зЏѕењЁеЂ¤г‚’ж¬Ўгѓ•гѓ¬гѓјгѓ з”ЁгЃ«дїќе­
             prevSpec[i] = spectrum[i];
         }
 
-        // Љe‰рђНЊ‹‰К‚р”Ѕ‰f
+        // еђ„и§Јжћђзµђжћњг‚’ж›ґж–°
         Low = low;
         Mid = mid;
         High = high;
         Flux = flux;
 
-        // ѓtѓ‰ѓbѓNѓX‚М€Ъ“®•Ѕ‹П*”{—¦‚ри‡’l‚Й‚µ‚ДЃA’ґ‚¦‚Ѕ‚зѓrЃ[ѓgѓCѓxѓ“ѓg‚р”­‰О
+        // гѓ•гѓ©гѓѓг‚Їг‚№гЃ®з§»е‹•е№іеќ‡г‚’иЁ€з®—гЃ—гЂЃй–ѕеЂ¤гЃЁжЇ”ијѓгЃ—гЃ¦гѓ“гѓјгѓ€г‚¤гѓ™гѓігѓ€г‚’ж¤ње‡є
         fluxBuf[fluxIdx] = flux; 
         fluxIdx = (fluxIdx + 1) % fluxBuf.Length;
 
+        // з§»е‹•е№іеќ‡г‚’иЁ€з®—
         float avg = 0f;
         for (int i = 0; i < fluxBuf.Length; i++) avg += fluxBuf[i];
         avg /= fluxBuf.Length;
 
-        float threshold = avg * settings.fluxThresholdMul + 0.0005f;    // ”чЏ¬ѓIѓtѓZѓbѓg
+        // й–ѕеЂ¤г‚’иЁ­е®љгЃ—гЂЃгѓ“гѓјгѓ€г‚’ж¤ње‡є
+        float threshold = avg * settings.fluxThresholdMul + 0.0005f;    // жњЂе°Џй–ѕеЂ¤
         if (flux > threshold && Time.time - lastBeatTime > settings.beatCooldown)
         {
             lastBeatTime = Time.time;
-            OnBeat?.Invoke();   // ЉO•”‚Й’К’m
+            OnBeat?.Invoke();   // г‚¤гѓ™гѓігѓ€г‚’з™єзЃ«
         }
     }
 }
