@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b71910febe48ab4b9a0b900679bae15, type: 3}
   m_Name: Cyber
   m_EditorClassIdentifier: 
-  baseIntensity: 1.2
-  lowGain: 30
+  baseIntensity: 1
+  lowGain: 10
   beatFlash: 2
   flashDecay: 5
   emissionBase: 1
