@@ -16,6 +16,8 @@ public class LightingPreset : ScriptableObject
     public float beatFlash = 2.0f;
     /// <summary>フラッシュ効果の減衰速度（大きいほど早く消える）</summary>
     public float flashDecay = 5f;
+    /// <summary>ビート強調効果の減衰速度（フラッシュより長続き）</summary>
+    public float beatEmphasisDecay = 8f;
 
     [Header("Emission")]
     /// <summary>マテリアルエミッションの基本強度</summary>
@@ -38,4 +40,12 @@ public class LightingPreset : ScriptableObject
     public AnimationCurve lowToIntensity = AnimationCurve.EaseInOut(0, 0, 1, 1);
     /// <summary>高周波数帯域から色相変化速度への変換カーブ</summary>
     public AnimationCurve highToHueSpeed = AnimationCurve.Linear(0, 0, 1, 1);
+
+    [Header("Advanced Settings")]
+    /// <summary>動的閾値の感度（大きいほど音の変化に敏感）</summary>
+    [Range(0.5f, 3f)] public float dynamicThresholdSensitivity = 2f;
+    /// <summary>変化量検出の感度（大きいほど急激な変化に反応）</summary>
+    [Range(10f, 200f)] public float deltaSensitivity = 100f;
+    /// <summary>ビート強調効果の強度倍率</summary>
+    [Range(0.1f, 2f)] public float beatEmphasisMultiplier = 0.5f;
 }

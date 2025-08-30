@@ -25,6 +25,8 @@ public class AudioAnalyzer : MonoBehaviour
     public float High { get; private set; }
     /// <summary>スペクトラムフラックス（音の変化量）</summary>
     public float Flux { get; private set; }
+    /// <summary>低周波数帯域の変化量（ビート検出の補助）</summary>
+    public float LowDelta { get; private set; }
 
     // 内部変数
     /// <summary>音声ソースコンポーネント</summary>
@@ -38,7 +40,20 @@ public class AudioAnalyzer : MonoBehaviour
     /// <summary>フラックスバッファの現在位置</summary>
     int fluxIdx;
     /// <summary>最後にビートを検出した時間（連続検出防止）</summary>
-    float lastBeatTime; 
+    float lastBeatTime;
+    
+    /// <summary>低周波数帯域履歴（ビート検出用）</summary>
+    float[] lowHistory;
+    /// <summary>低周波数帯域履歴の現在位置</summary>
+    int lowHistoryIdx;
+    /// <summary>低周波数帯域の移動平均</summary>
+    float lowAverage;
+    /// <summary>前フレームの低周波数帯域値</summary>
+    float prevLow;
+    /// <summary>ビート検出の複合スコア</summary>
+    float beatScore;
+    /// <summary>ビート検出の閾値</summary>
+    float beatThreshold = 0.6f;
 
     void Awake()
     {
@@ -50,6 +65,13 @@ public class AudioAnalyzer : MonoBehaviour
         spectrum = new float[n];
         prevSpec = new float[n];
         fluxBuf = new float[Mathf.Clamp(settings.fluxHistory, 16, 256)];
+        
+        // ビート検出システムの初期化
+        lowHistory = new float[60]; // 1秒間の履歴（60FPS想定）
+        lowHistoryIdx = 0;
+        lowAverage = 0f;
+        prevLow = 0f;
+        beatScore = 0f;
     }
 
     void Update()
@@ -95,21 +117,89 @@ public class AudioAnalyzer : MonoBehaviour
         High = high;
         Flux = flux;
 
-        // フラックスの移動平均を計算し、閾値と比較してビートイベントを検出
-        fluxBuf[fluxIdx] = flux; 
+        // ビート検出システム
+        UpdateBeatDetection(low, flux);
+    }
+
+    /// <summary>
+    /// ビート検出システム
+    /// </summary>
+    void UpdateBeatDetection(float low, float flux)
+    {
+        // 低周波数帯域の変化量を計算
+        LowDelta = low - prevLow;
+        prevLow = low;
+
+        // 低周波数帯域履歴を更新
+        lowHistory[lowHistoryIdx] = low;
+        lowHistoryIdx = (lowHistoryIdx + 1) % lowHistory.Length;
+
+        // 低周波数帯域の移動平均を計算
+        float sum = 0f;
+        for (int i = 0; i < lowHistory.Length; i++)
+        {
+            sum += lowHistory[i];
+        }
+        lowAverage = sum / lowHistory.Length;
+
+        // フラックスの移動平均を計算
+        fluxBuf[fluxIdx] = flux;
         fluxIdx = (fluxIdx + 1) % fluxBuf.Length;
 
-        // 移動平均を計算
-        float avg = 0f;
-        for (int i = 0; i < fluxBuf.Length; i++) avg += fluxBuf[i];
-        avg /= fluxBuf.Length;
+        float fluxSum = 0f;
+        for (int i = 0; i < fluxBuf.Length; i++) fluxSum += fluxBuf[i];
+        float fluxAverage = fluxSum / fluxBuf.Length;
 
-        // 閾値を設定し、ビートを検出
-        float threshold = avg * settings.fluxThresholdMul + 0.0005f;    // 最小閾値
-        if (flux > threshold && Time.time - lastBeatTime > settings.beatCooldown)
+        // 複合ビート検出スコアを計算
+        float lowRelative = 0f;
+        if (lowAverage > 0.001f)
+        {
+            lowRelative = Mathf.Clamp01((low / lowAverage - 1f) * 2f);
+        }
+
+        float fluxRelative = 0f;
+        if (fluxAverage > 0.001f)
+        {
+            fluxRelative = Mathf.Clamp01((flux / fluxAverage - 1f) * 1.5f);
+        }
+
+        float deltaRelative = Mathf.Clamp01(Mathf.Abs(LowDelta) * 50f);
+
+        // 複合スコア（低周波数帯域の突出 + フラックスの突出 + 変化量）
+        beatScore = (lowRelative * 0.4f + fluxRelative * 0.4f + deltaRelative * 0.2f);
+
+        // ビート検出の閾値チェック
+        float threshold = beatThreshold;
+        if (fluxAverage > 0.001f)
+        {
+            // フラックス平均に基づいて動的閾値を調整
+            threshold = Mathf.Max(0.3f, Mathf.Min(0.8f, fluxAverage * 10f));
+        }
+
+        // ビート検出条件
+        bool isBeat = beatScore > threshold && 
+                     Time.time - lastBeatTime > settings.beatCooldown &&
+                     low > lowAverage * 1.2f; // 低周波数帯域が平均より20%以上高い
+
+        if (isBeat)
         {
             lastBeatTime = Time.time;
             OnBeat?.Invoke();   // イベントを発火
         }
     }
+
+    /// <summary>
+    /// デバッグ用：現在のビート検出状態を取得
+    /// </summary>
+    public float GetBeatScore() => beatScore;
+    
+    /// <summary>
+    /// デバッグ用：現在のビート閾値を取得
+    /// </summary>
+    public float GetBeatThreshold() => beatThreshold;
+    
+    /// <summary>
+    /// デバッグ用：ビート閾値を設定
+    /// </summary>
+    public void SetBeatThreshold(float threshold) => beatThreshold = Mathf.Clamp01(threshold);
 }
