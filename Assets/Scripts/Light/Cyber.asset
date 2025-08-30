@@ -12,13 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b71910febe48ab4b9a0b900679bae15, type: 3}
   m_Name: Cyber
   m_EditorClassIdentifier: 
-  baseIntensity: 1
+  baseIntensity: 5
   lowGain: 10
   beatFlash: 2
   flashDecay: 5
+  beatEmphasisDecay: 8
   emissionBase: 1
   emissionGain: 8
-  baseHue: 0.6
+  baseHue: 1
   hueSpeed: 0.1
   sat: 0.9
   val: 1
@@ -70,3 +71,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  dynamicThresholdSensitivity: 2
+  deltaSensitivity: 100
+  beatEmphasisMultiplier: 0.5

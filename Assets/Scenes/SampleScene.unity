@@ -23,10 +23,10 @@ RenderSettings:
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 1
+  m_AmbientIntensity: 0.5
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: d4454f71d85928744be7771e2143dab7, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -35,7 +35,7 @@ RenderSettings:
   m_DefaultReflectionMode: 0
   m_DefaultReflectionResolution: 128
   m_ReflectionBounces: 1
-  m_ReflectionIntensity: 1
+  m_ReflectionIntensity: 0.5
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
   m_UseRadianceAmbientProbe: 0
@@ -94,7 +94,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
-  m_LightingSettings: {fileID: 0}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 3e09c0ceb35c74e45a7b7d31b4eed92d, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -164,7 +164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   analyzer: {fileID: 1342028163}
-  preset: {fileID: 11400000, guid: 9db0e180beb68fa4b9c9ebefd1610a56, type: 2}
+  preset: {fileID: 11400000, guid: c63e911b10c41de4e9ec65f71fbacf5d, type: 2}
   reactiveLight: {fileID: 1777592756}
   emissionTargetArray: []
 --- !u!1 &410087039
@@ -195,8 +195,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 11
   m_Type: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Color: {r: 0.17610055, g: 0.17610055, b: 0.17610055, a: 1}
+  m_Intensity: 0.2
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -546,10 +546,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: city
       objectReference: {fileID: 0}
+    - target: {fileID: 3191876752547487775, guid: c2cc0d029e042ef4c95df9e62579dc81, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 6814ddceb35468646883e204f1e3b948, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2040384534230911008, guid: c2cc0d029e042ef4c95df9e62579dc81, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1045651416}
   m_SourcePrefab: {fileID: 100100000, guid: c2cc0d029e042ef4c95df9e62579dc81, type: 3}
 --- !u!1 &832575517
 GameObject:
@@ -753,6 +760,33 @@ Transform:
   - {fileID: 495025739}
   m_Father: {fileID: 1523348916}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1045651412 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2040384534230911008, guid: c2cc0d029e042ef4c95df9e62579dc81, type: 3}
+  m_PrefabInstance: {fileID: 697345796}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &1045651416
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1045651412}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -5236881204944756372, guid: c2cc0d029e042ef4c95df9e62579dc81, type: 3}
 --- !u!1 &1144847784
 GameObject:
   m_ObjectHideFlags: 0
@@ -812,8 +846,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: e28914a80f6452c4987c304c1e1a461e, type: 3}
-  m_Resource: {fileID: 8300000, guid: e28914a80f6452c4987c304c1e1a461e, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 8ced9aa37db6aaf408ab742f0064c1df, type: 3}
+  m_Resource: {fileID: 8300000, guid: 8ced9aa37db6aaf408ab742f0064c1df, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1

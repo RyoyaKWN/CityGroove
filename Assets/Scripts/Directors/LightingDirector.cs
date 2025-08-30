@@ -69,8 +69,8 @@ public class LightingDirector : MonoBehaviour
         UpdateLowFrequencyAnalysis();
 
         // 高周波数帯域で色相を変化（AnimationCurveで調整可能）
-        float hueDelta = preset.highToHueSpeed.Evaluate(Norm(analyzer.High)) * preset.hueSpeed * Time.deltaTime;
-        hue = (hue + hueDelta) % 1f;  // 0-1の範囲に正規化
+        // float hueDelta = preset.highToHueSpeed.Evaluate(Norm(analyzer.High)) * preset.hueSpeed * Time.deltaTime;
+        // hue = (hue + hueDelta) % 1f;  // 0-1の範囲に正規化
         Color c = Color.HSVToRGB(hue, preset.sat, preset.val);
 
         // 改善された強度計算：動的閾値と変化量を考慮
